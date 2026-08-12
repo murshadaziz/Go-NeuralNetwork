@@ -4,8 +4,6 @@ type NeuralNetwork []Layer
 
 // Layer struct
 type Layer struct {
-	inputs     []float64
-	output     []float64
 	weights    [][]float64
 	bias       []float64
 	activation Activation
