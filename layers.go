@@ -1,4 +1,4 @@
-package goneuralnetwork
+package main
 
 import (
 	"math/rand"

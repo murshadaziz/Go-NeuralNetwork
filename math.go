@@ -1,4 +1,4 @@
-package goneuralnetwork
+package main
 
 func dot(a, b []float64) float64 {
 	var sum float64
