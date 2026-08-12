@@ -1,5 +1,9 @@
 package goneuralnetwork
 
+import (
+	"math/rand"
+)
+
 type NeuralNetwork []Layer
 
 // Layer struct
@@ -24,4 +28,17 @@ func (layer *Layer) init(inputs, outputs int, act Activation) {
 
 	layer.activation = act
 
+}
+
+func (neuralnetwork NeuralNetwork) Randomise() {
+	for _, layer := range neuralnetwork {
+		for i := range len(layer.weights) {
+			for j := range len(layer.weights[0]) {
+				layer.weights[i][j] = rand.Float64()*2 - 1
+			}
+		}
+		for i := range len(layer.bias) {
+			layer.bias[i] = rand.Float64()*2 - 1
+		}
+	}
 }

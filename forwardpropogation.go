@@ -5,6 +5,7 @@ func (layer *Layer) Inference(input []float64) []float64 {
 	for i := range output {
 		output[i] = dot(layer.weights[i], input) + layer.bias[i]
 	}
+	layer.activation(output)
 	return output
 }
 
