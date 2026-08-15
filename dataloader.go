@@ -64,7 +64,7 @@ func readIdxLabelsFloat64(path string) ([]float64, error) {
 	}
 	defer f.Close()
 	// idx1 file has a 8 byte header so we read 8 bytes
-	var magic, numLabels int32
+	var magic, numLabels uint32
 	// first four bytes represent the magic number 00000801 which tell that file has unsigned bytes in 1 dimension
 	binary.Read(f, binary.BigEndian, &magic)
 	// next four bytes tells the number of labels
@@ -74,7 +74,7 @@ func readIdxLabelsFloat64(path string) ([]float64, error) {
 	// reads all the bytes into the raw byte buffer
 	f.Read(raw)
 	// makes a float64 1d slice of size equal to number of labels
-	labels := make([]float64, numLabels)
+	labels := make([]float64, int(numLabels))
 	// iterates over raw buffer taking out one byte at a time
 	for i, b := range raw {
 		// converts byte into float64 and stores in labels slice
