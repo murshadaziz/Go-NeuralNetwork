@@ -41,7 +41,7 @@ func main() {
 
 	fmt.Println("first label:", labels[0])
 	fmt.Println("first image (first 28 pixels):")
-	for i := 0; i < 28; i++ {
+	for i := 0; i < 784; i++ {
 		fmt.Printf("%.1f ", images[0][i])
 	}
 	fmt.Println()

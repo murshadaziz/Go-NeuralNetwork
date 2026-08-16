@@ -57,7 +57,7 @@ func readIdxImagesFloat64(path string) ([][]float64, error) {
 }
 
 // Reads labels from .idx1 file and returns a 1d slice containing 1 label for each image e.g 60000 labels
-func readIdxLabelsFloat64(path string) ([]float64, error) {
+func readIdxLabelsFloat64(path string) ([]int, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -74,11 +74,11 @@ func readIdxLabelsFloat64(path string) ([]float64, error) {
 	// reads all the bytes into the raw byte buffer
 	f.Read(raw)
 	// makes a float64 1d slice of size equal to number of labels
-	labels := make([]float64, int(numLabels))
+	labels := make([]int, int(numLabels))
 	// iterates over raw buffer taking out one byte at a time
 	for i, b := range raw {
 		// converts byte into float64 and stores in labels slice
-		labels[i] = float64(b)
+		labels[i] = int(b)
 	}
 	// returns the 1d float64 slice
 	return labels, nil
