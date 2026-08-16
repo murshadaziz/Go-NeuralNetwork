@@ -11,10 +11,14 @@ type Layer struct {
 	weights    [][]float64
 	bias       []float64
 	activation Activation
+	// Tells if the layer is output or hidden layer
+	isOutput bool
+	// Caches used for backpropogation
+	lastInput []float64 // input this layer received
 }
 
 // Initialises a layer with defined 2d matrix for weights, 1d array for biases and an activation function
-func (layer *Layer) init(inputs, outputs int, act Activation) {
+func (layer *Layer) init(inputs, outputs int, act Activation, isOut bool) {
 	// Buffer is used so the 2d matrix is contigious
 	buffer := make([]float64, inputs*outputs)
 
@@ -27,9 +31,11 @@ func (layer *Layer) init(inputs, outputs int, act Activation) {
 	}
 
 	layer.activation = act
+	layer.isOutput = isOut
 
 }
 
+// Randomizes the weights and biases of all layers of the neural network
 func (neuralnetwork NeuralNetwork) Randomise() {
 	for _, layer := range neuralnetwork {
 		for i := range len(layer.weights) {

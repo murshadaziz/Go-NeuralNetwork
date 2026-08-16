@@ -7,9 +7,9 @@ import (
 func main() {
 	/*
 		var layer1 Layer
-		layer1.init(4, 3, relu)
+		layer1.init(4, 3, relu, false)
 		var layer2 Layer
-		layer2.init(3, 2, softmax)
+		layer2.init(3, 2, softmax, false)
 
 		var neuralnetwork NeuralNetwork
 		neuralnetwork = append(neuralnetwork, layer1)
