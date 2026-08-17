@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"encoding/binary"
+	"io"
 	"os"
 )
 
@@ -22,15 +24,33 @@ func readIdxImagesFloat64(path string) ([][]float64, error) {
 	// So binary.Read takes *os.file, ByteOrder and the data to store in as input interpretes the bytes
 	// as the datatype of the input data and stores in it
 	// .idx3 file has a 4 byte header so we read 4 bytes
+
+	// makes a wrapper buffer for *os.file to reduce the syscalls
+	// (bufio.NewReader wraps anything that implements the io.Reader interface that has a Read method)
+	// (and returns a *bufio.Reader that also implements the io.Reader interface)
+	reader := bufio.NewReader(f)
 	var magic, numImages, rows, cols uint32
+	// err handling after each Read operation
 	// Magic number is the file format e.g it has value 00000803 for idx3 files with unsigned bytes of 3d data (28x28x60000)
-	binary.Read(f, binary.BigEndian, &magic)
+	err = binary.Read(reader, binary.BigEndian, &magic)
+	if err != nil {
+		return nil, err
+	}
 	// Next 4 bytes represent the number of images
-	binary.Read(f, binary.BigEndian, &numImages)
+	err = binary.Read(reader, binary.BigEndian, &numImages)
+	if err != nil {
+		return nil, err
+	}
 	// represent the number of rows per image
-	binary.Read(f, binary.BigEndian, &rows)
+	err = binary.Read(reader, binary.BigEndian, &rows)
+	if err != nil {
+		return nil, err
+	}
 	// represent the number of columns per image
-	binary.Read(f, binary.BigEndian, &cols)
+	err = binary.Read(reader, binary.BigEndian, &cols)
+	if err != nil {
+		return nil, err
+	}
 
 	// rows*colums represent the size of image e.g 28x28 = 728
 	imgSize := int(rows * cols)
@@ -41,7 +61,11 @@ func readIdxImagesFloat64(path string) ([][]float64, error) {
 	// iterates through the all the images one by one
 	for i := range images {
 		// reads raw bytes into the buffer
-		f.Read(buf)
+		// ReadFull fills the buf and returns n = number of byters and err, n is discarded here
+		_, err = io.ReadFull(reader, buf)
+		if err != nil {
+			return nil, err
+		}
 		// makes a 1d slice of size 28x28 for one image
 		img := make([]float64, imgSize)
 		// iterates through the buffer and takes out one byte at a time
@@ -63,16 +87,29 @@ func readIdxLabelsFloat64(path string) ([]int, error) {
 		return nil, err
 	}
 	defer f.Close()
+	// makes a wrapper buffer for *os.file to reduce the syscalls
+	// (bufio.NewReader wraps anything that implements the io.Reader interface that has a Read method)
+	// (and returns a *bufio.Reader that also implements the io.Reader interface)
+	reader := bufio.NewReader(f)
 	// idx1 file has a 8 byte header so we read 8 bytes
 	var magic, numLabels uint32
 	// first four bytes represent the magic number 00000801 which tell that file has unsigned bytes in 1 dimension
-	binary.Read(f, binary.BigEndian, &magic)
+	err = binary.Read(reader, binary.BigEndian, &magic)
+	if err != nil {
+		return nil, err
+	}
 	// next four bytes tells the number of labels
-	binary.Read(f, binary.BigEndian, &numLabels)
+	err = binary.Read(reader, binary.BigEndian, &numLabels)
+	if err != nil {
+		return nil, err
+	}
 	// makes temporary buffer which stores the bytes of the all the labels e.g 60000
 	raw := make([]byte, numLabels)
 	// reads all the bytes into the raw byte buffer
-	f.Read(raw)
+	_, err = io.ReadFull(reader, raw)
+	if err != nil {
+		return nil, err
+	}
 	// makes a float64 1d slice of size equal to number of labels
 	labels := make([]int, int(numLabels))
 	// iterates over raw buffer taking out one byte at a time
