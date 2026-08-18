@@ -11,14 +11,12 @@ type Layer struct {
 	weights    [][]float64
 	bias       []float64
 	activation Activation
-	// Tells if the layer is output or hidden layer
-	isOutput bool
 	// Caches used for backpropogation
 	lastInput []float64 // input this layer received
 }
 
 // Initialises a layer with defined 2d matrix for weights, 1d array for biases and an activation function
-func (layer *Layer) init(inputs, outputs int, act Activation, isOut bool) {
+func (layer *Layer) init(inputs, outputs int, act Activation) {
 	// Buffer is used so the 2d matrix is contigious
 	buffer := make([]float64, inputs*outputs)
 
@@ -31,7 +29,6 @@ func (layer *Layer) init(inputs, outputs int, act Activation, isOut bool) {
 	}
 
 	layer.activation = act
-	layer.isOutput = isOut
 
 }
 
