@@ -18,20 +18,22 @@ func linear(input []float64) []float64 {
 }
 
 func softmax(input []float64) []float64 {
-	output := make([]float64, len(input))
 	max := input[0]
 	for i := range input {
 		if input[i] > max {
 			max = input[i]
 		}
 	}
+
 	sum := 0.0
 	for i := range input {
-		output[i] = math.Exp(input[i] - max)
-		sum += output[i]
+		input[i] = math.Exp(input[i] - max) // overwrite in place with exp value
+		sum += input[i]
 	}
+
 	for i := range input {
-		input[i] = output[i] / sum
+		input[i] /= sum // normalize in place
 	}
+
 	return input
 }

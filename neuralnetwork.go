@@ -12,9 +12,11 @@ func main() {
 	layer3.init(64, 10, softmax)
 
 	var neuralnetwork NeuralNetwork
-	neuralnetwork = append(neuralnetwork, layer1)
-	neuralnetwork = append(neuralnetwork, layer2)
-	neuralnetwork = append(neuralnetwork, layer3)
+	neuralnetwork.layers = append(neuralnetwork.layers, layer1)
+	neuralnetwork.layers = append(neuralnetwork.layers, layer2)
+	neuralnetwork.layers = append(neuralnetwork.layers, layer3)
+	neuralnetwork.learningRate = 0.01
+	neuralnetwork.batchSize = 1000
 	/*
 			err := neuralnetwork.loadData("data/weights_biases.bin")
 			input := []float64{1, 2, 3, 4}

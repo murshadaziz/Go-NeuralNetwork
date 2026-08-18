@@ -5,8 +5,7 @@ import (
 )
 
 // For softmax
-func (neuralnetwork NeuralNetwork) Cost(input []float64, label int) float64 {
-	output := neuralnetwork.ForwardProgation(input)
+func (neuralnetwork NeuralNetwork) Cost(output []float64, label int) float64 {
 	cost := -math.Log(output[label] + 1e-15)
 	return cost
 }
@@ -33,64 +32,67 @@ func (neuralnetwork NeuralNetwork) Cost(input []float64, label int) float64 {
 //     delta_prev = sum(weight * delta)
 //     else:
 //     delta_prev = 0
-func (neuralnetwork NeuralNetwork) Backpropagation(input []float64, label int, lr float64) {
-	// forward pass, caches lastInput/lastOutput on every layer
-	output := neuralnetwork.ForwardProgation(input)
-	// Number of outputs
-	numClasses := len(output)
-	target := make([]float64, numClasses)
-	// sets 1.0 for correct label rest remain 0.0
-	target[label] = 1.0
-
+func (neuralnetwork NeuralNetwork) Backpropagation(output []float64, label int) {
+	// gets last layer of neural network
+	lastLayer := &neuralnetwork.layers[len(neuralnetwork.layers)-1]
+	copy(lastLayer.delta, output)
 	// delta for output layer: softmax + cross-entropy simplifies to (output - target)
 	// delta will have size equal the neurons in the current layer
-	delta := make([]float64, numClasses)
-	for i := range delta {
-		// sets delta one by one
-		delta[i] = output[i] - target[i]
-	}
+	// as all the values in target are 0 except the label
+	lastLayer.delta[label] -= 1.0
 
 	// walk backwards through layers
-	for l := len(neuralnetwork) - 1; l >= 0; l-- {
-		// gets one layer
-		layer := &neuralnetwork[l]
-
-		// compute delta for the PREVIOUS layer before we overwrite this layer's weights
-		var prevDelta []float64
-		// doesnt compute for last layer
+	for l := len(neuralnetwork.layers) - 1; l >= 0; l-- {
+		layer := &neuralnetwork.layers[l]
+		// calculates prev delta for all layers except the first
 		if l > 0 {
-			// makes a slice equal to length of neurons in the prev layer
-			prevDelta = make([]float64, len(layer.lastInput))
-			// iterates over the prev delta slice
-			for j := range prevDelta {
-				sum := 0.0
-				// adds all the weights*delta of the all the neurons of current layer
-				// here i is the neuron number and j is the lastinput aka the neurons in the previous layer
-				for i := range delta {
-					sum += layer.weights[i][j] * delta[i]
-				}
-				// ReLU derivative: 1 if this layer's input (prev layer's output) was > 0
-				// as j was the previous layers neurons so we set the prevdelta[j] as sum
-				// if the derivative of last is not zero
-				if layer.lastInput[j] > 0 {
-					prevDelta[j] = sum
-				} else {
-					prevDelta[j] = 0
-				}
-			}
+			computePrevDelta(layer, &neuralnetwork.layers[l-1])
 		}
 
-		// update weights and biases using current delta
-		// i is number of neurons in current layer
-		// j is the number of neurons in previous layer aka number of inputs aka number of weights per neuron
-		for i := range layer.weights {
-			for j := range layer.weights[i] {
-				// updates using learning rate lr
-				layer.weights[i][j] -= lr * delta[i] * layer.lastInput[j]
-			}
-			layer.bias[i] -= lr * delta[i]
+		accumulateGradients(layer)
+	}
+}
+
+// Takes current layer and previous layer as input and calculates the delta for previous layer
+func computePrevDelta(layer, prevLayer *Layer) {
+	// adds all the weights*delta of the all the neurons of current layer
+	// here i is the neuron number and j is the lastinput aka the neurons in the previous layer
+	for j := range prevLayer.delta {
+		sum := 0.0
+		for i := range layer.delta {
+			sum += layer.weights[i][j] * layer.delta[i]
 		}
-		// sets delta for the previous layer
-		delta = prevDelta
+		// ReLU derivative: 1 if this layer's input (prev layer's output) was > 0
+		// as j was the previous layers neurons so we set the prevdelta[j] as sum
+		// if the derivative of last is not zero
+		if layer.lastInput[j] > 0 {
+			prevLayer.delta[j] = sum
+		} else {
+			prevLayer.delta[j] = 0
+		}
+	}
+}
+
+// Accumulates the gradients of a layer using its delta and lastinputs
+func accumulateGradients(layer *Layer) {
+	// i is number of neurons in current layer
+	// j is the number of neurons in previous layer aka number of inputs aka number of weights per neuron
+	for i := range layer.weights {
+		for j := range layer.weights[i] {
+			layer.weightGrad[i][j] += layer.delta[i] * layer.lastInput[j]
+		}
+		layer.biasGrad[i] += layer.delta[i]
+	}
+}
+
+// Applies the gradients to the weights and biases of the layer after accumulating for batchsize
+func applyGradients(layer *Layer, lr float64, batchSize int) {
+	for i := range layer.weights {
+		for j := range layer.weights[i] {
+			layer.weights[i][j] -= lr * layer.weightGrad[i][j] / float64(batchSize)
+			layer.weightGrad[i][j] = 0
+		}
+		layer.bias[i] -= lr * layer.biasGrad[i] / float64(batchSize)
+		layer.biasGrad[i] = 0
 	}
 }

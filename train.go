@@ -9,15 +9,22 @@ import (
 
 // Loops over all the images one by one and calls the backpropogation method inside to adjust weights
 func (neuralnetwork NeuralNetwork) Train(images [][]float64, labels []int, epochs int) {
-	learningRate := 0.01
-
+	lastLayer := neuralnetwork.layers[len(neuralnetwork.layers)-1]
+	output := make([]float64, len(lastLayer.bias)) // sized once, reused every pass
+	var label int
 	for i := range epochs {
 		cost := 0.0
 		fmt.Printf("Epoch %v\n", i)
 		for j, image := range images {
-			label := labels[j]
-			cost += neuralnetwork.Cost(image, label)
-			neuralnetwork.Backpropagation(image, label, learningRate)
+			label = labels[j]
+			output = neuralnetwork.ForwardProgation(image) // fills output in place
+			cost += neuralnetwork.Cost(output, label)
+			neuralnetwork.Backpropagation(output, label)
+			if (j+1)%neuralnetwork.batchSize == 0 {
+				for l := range neuralnetwork.layers {
+					applyGradients(&neuralnetwork.layers[l], neuralnetwork.learningRate, neuralnetwork.batchSize)
+				}
+			}
 		}
 		cost /= float64(len(images))
 		fmt.Printf("Current cost: %v\n", cost)
@@ -39,7 +46,7 @@ func (neuralnetwork NeuralNetwork) saveData(path string) error {
 	// writes everything from the writer buffer to the .bin file in one go
 	defer writer.Flush()
 	// iterates over layers
-	for _, layer := range neuralnetwork {
+	for _, layer := range neuralnetwork.layers {
 		// iterates over rows of layer's weight's
 		for i := range layer.weights {
 			// iterates over columns
@@ -73,7 +80,8 @@ func (neuralnetwork NeuralNetwork) loadData(path string) error {
 	// (bufio.NewReader wraps anything that implements the io.Reader interface that has a Read method)
 	// (and returns a *bufio.Reader that also implements the io.Reader interface)
 	reader := bufio.NewReader(f)
-	for _, layer := range neuralnetwork {
+	for i := range neuralnetwork.layers {
+		layer := &neuralnetwork.layers[i]
 		for i := range layer.weights {
 			for j := range layer.weights[i] {
 				// takes the reader and reads 8 byte (float64) into the address of weights[i][j]
