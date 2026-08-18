@@ -3,15 +3,24 @@ package main
 import (
 	"bufio"
 	"encoding/binary"
+	"fmt"
 	"os"
 )
 
 // Loops over all the images one by one and calls the backpropogation method inside to adjust weights
-func (neuralnetwork NeuralNetwork) Train(images [][]float64, labels []int) {
-	learning_rate := 0.01
-	for i, image := range images {
-		label := labels[i]
-		neuralnetwork.Backpropagation(image, label, learning_rate)
+func (neuralnetwork NeuralNetwork) Train(images [][]float64, labels []int, epochs int) {
+	learningRate := 0.01
+
+	for i := range epochs {
+		cost := 0.0
+		fmt.Printf("Epoch %v\n", i)
+		for j, image := range images {
+			label := labels[j]
+			cost += neuralnetwork.Cost(image, label)
+			neuralnetwork.Backpropagation(image, label, learningRate)
+		}
+		cost /= float64(len(images))
+		fmt.Printf("Current cost: %v\n", cost)
 	}
 }
 
@@ -67,7 +76,7 @@ func (neuralnetwork NeuralNetwork) loadData(path string) error {
 	for _, layer := range neuralnetwork {
 		for i := range layer.weights {
 			for j := range layer.weights[i] {
-				// takes the reader and reads 1 byte into the address of weights[i][j]
+				// takes the reader and reads 8 byte (float64) into the address of weights[i][j]
 				err := binary.Read(reader, binary.BigEndian, &layer.weights[i][j])
 				if err != nil {
 					return err
