@@ -49,7 +49,7 @@ func (neuralnetwork NeuralNetwork) Backpropagation(output []float64, label int) 
 			computePrevDelta(layer, &neuralnetwork.layers[l-1])
 		}
 
-		accumulateGradients(layer)
+		neuralnetwork.updateWeights(layer)
 	}
 }
 
@@ -73,26 +73,13 @@ func computePrevDelta(layer, prevLayer *Layer) {
 	}
 }
 
-// Accumulates the gradients of a layer using its delta and lastinputs
-func accumulateGradients(layer *Layer) {
+func (neuralnetwork NeuralNetwork) updateWeights(layer *Layer) {
 	// i is number of neurons in current layer
 	// j is the number of neurons in previous layer aka number of inputs aka number of weights per neuron
 	for i := range layer.weights {
 		for j := range layer.weights[i] {
-			layer.weightGrad[i][j] += layer.delta[i] * layer.lastInput[j]
+			layer.weights[i][j] -= neuralnetwork.learningRate * layer.delta[i] * layer.lastInput[j]
 		}
-		layer.biasGrad[i] += layer.delta[i]
-	}
-}
-
-// Applies the gradients to the weights and biases of the layer after accumulating for batchsize
-func applyGradients(layer *Layer, lr float64, batchSize int) {
-	for i := range layer.weights {
-		for j := range layer.weights[i] {
-			layer.weights[i][j] -= lr * layer.weightGrad[i][j] / float64(batchSize)
-			layer.weightGrad[i][j] = 0
-		}
-		layer.bias[i] -= lr * layer.biasGrad[i] / float64(batchSize)
-		layer.biasGrad[i] = 0
+		layer.bias[i] -= neuralnetwork.learningRate * layer.delta[i]
 	}
 }

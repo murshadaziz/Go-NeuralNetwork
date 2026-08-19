@@ -20,3 +20,14 @@ func (neuralnetwork NeuralNetwork) ForwardProgation(input []float64) []float64 {
 	}
 	return current
 }
+
+// returns the index of the largest value in a slice — i.e. the predicted class
+func argmax(values []float64) int {
+	best := 0
+	for i := range values {
+		if values[i] > values[best] {
+			best = i
+		}
+	}
+	return best
+}

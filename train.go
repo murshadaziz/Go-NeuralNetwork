@@ -14,20 +14,21 @@ func (neuralnetwork NeuralNetwork) Train(images [][]float64, labels []int, epoch
 	var label int
 	for i := range epochs {
 		cost := 0.0
+		correct := 0
 		fmt.Printf("Epoch %v\n", i)
 		for j, image := range images {
 			label = labels[j]
 			output = neuralnetwork.ForwardProgation(image) // fills output in place
 			cost += neuralnetwork.Cost(output, label)
-			neuralnetwork.Backpropagation(output, label)
-			if (j+1)%neuralnetwork.batchSize == 0 {
-				for l := range neuralnetwork.layers {
-					applyGradients(&neuralnetwork.layers[l], neuralnetwork.learningRate, neuralnetwork.batchSize)
-				}
+			if argmax(output) == label {
+				correct++
 			}
+			neuralnetwork.Backpropagation(output, label)
 		}
 		cost /= float64(len(images))
+		accuracy := float64(correct) / float64(len(images)) // NEW
 		fmt.Printf("Current cost: %v\n", cost)
+		fmt.Printf("Accuracy: %.2f%%\n", accuracy*100) // NEW
 	}
 }
 

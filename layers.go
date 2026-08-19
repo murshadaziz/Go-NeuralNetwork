@@ -1,13 +1,18 @@
 package main
 
 import (
+	"math"
 	"math/rand"
 )
 
 type NeuralNetwork struct {
 	layers       []Layer
 	learningRate float64
-	batchSize    int
+}
+
+func (neuralnetwork *NeuralNetwork) init(currlayers []Layer, rate float64) {
+	neuralnetwork.layers = currlayers
+	neuralnetwork.learningRate = rate
 }
 
 // Layer struct
@@ -16,11 +21,9 @@ type Layer struct {
 	bias       []float64
 	activation Activation
 	// Caches used for backpropogation
-	lastInput  []float64 // input this layer received
-	delta      []float64 // used for backprob
-	weightGrad [][]float64
-	biasGrad   []float64
-	output     []float64
+	lastInput []float64 // input this layer received
+	delta     []float64 // used for backprob
+	output    []float64
 }
 
 // Initialises a layer with defined 2d matrix for weights, 1d array for biases and an activation function
@@ -41,25 +44,18 @@ func (layer *Layer) init(inputs, outputs int, act Activation) {
 
 	layer.delta = make([]float64, outputs)
 
-	gradBuffer := make([]float64, inputs*outputs)
-
-	layer.weightGrad = make([][]float64, outputs)
-	for i := range layer.weightGrad {
-		layer.weightGrad[i] = gradBuffer[i*inputs : (i+1)*inputs]
-	}
-
-	layer.biasGrad = make([]float64, outputs)
 	layer.activation = act
 }
 
 // Randomizes the weights and biases of all layers of the neural network
 func (neuralnetwork NeuralNetwork) Randomise() {
-
 	for i := range neuralnetwork.layers {
 		layer := &neuralnetwork.layers[i]
-		for i := range len(layer.weights) {
-			for j := range len(layer.weights[0]) {
-				layer.weights[i][j] = rand.Float64()*2 - 1
+		inputs := len(layer.weights[0])
+		scale := math.Sqrt(2.0 / float64(inputs)) // He init, good for ReLU
+		for r := range layer.weights {
+			for c := range layer.weights[r] {
+				layer.weights[r][c] = (rand.Float64()*2 - 1) * scale
 			}
 		}
 	}
