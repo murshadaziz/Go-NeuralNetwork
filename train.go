@@ -9,8 +9,7 @@ import (
 
 // Loops over all the images one by one and calls the backpropogation method inside to adjust weights
 func (neuralnetwork NeuralNetwork) Train(images [][]float64, labels []int, epochs int) {
-	lastLayer := neuralnetwork.layers[len(neuralnetwork.layers)-1]
-	output := make([]float64, len(lastLayer.bias)) // sized once, reused every pass
+	lastLayer := &neuralnetwork.layers[len(neuralnetwork.layers)-1]
 	var label int
 	for i := range epochs {
 		cost := 0.0
@@ -18,18 +17,39 @@ func (neuralnetwork NeuralNetwork) Train(images [][]float64, labels []int, epoch
 		fmt.Printf("Epoch %v\n", i)
 		for j, image := range images {
 			label = labels[j]
-			output = neuralnetwork.ForwardProgation(image) // fills output in place
-			cost += neuralnetwork.Cost(output, label)
-			if argmax(output) == label {
+			neuralnetwork.ForwardProgation(image) // fills output in place
+			cost += neuralnetwork.Cost(lastLayer.output, label)
+			if argmax(lastLayer.output) == label {
 				correct++
 			}
-			neuralnetwork.Backpropagation(output, label)
+			neuralnetwork.Backpropagation(lastLayer.output, label)
 		}
 		cost /= float64(len(images))
 		accuracy := float64(correct) / float64(len(images)) // NEW
 		fmt.Printf("Current cost: %v\n", cost)
 		fmt.Printf("Accuracy: %.2f%%\n", accuracy*100) // NEW
 	}
+}
+
+func (neuralnetwork NeuralNetwork) Test(images [][]float64, labels []int) {
+	lastLayer := &neuralnetwork.layers[len(neuralnetwork.layers)-1]
+	var label int
+
+	cost := 0.0
+	correct := 0
+
+	for j, image := range images {
+		label = labels[j]
+		neuralnetwork.ForwardProgation(image) // fills output in place
+		cost += neuralnetwork.Cost(lastLayer.output, label)
+		if argmax(lastLayer.output) == label {
+			correct++
+		}
+	}
+	cost /= float64(len(images))
+	accuracy := float64(correct) / float64(len(images)) // NEW
+	fmt.Printf("Current cost: %v\n", cost)
+	fmt.Printf("Accuracy: %.2f%%\n", accuracy*100) // NEW
 }
 
 // Saves the current weights and biases in a .bin file

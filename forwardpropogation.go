@@ -11,14 +11,13 @@ func (layer *Layer) Inference(input []float64) {
 }
 
 // Gives prediction of the full neural network
-func (neuralnetwork NeuralNetwork) ForwardProgation(input []float64) []float64 {
+func (neuralnetwork NeuralNetwork) ForwardProgation(input []float64) {
 	current := input
 	for i := range neuralnetwork.layers {
 		layer := &neuralnetwork.layers[i]
 		layer.Inference(current)
 		current = layer.output
 	}
-	return current
 }
 
 // returns the index of the largest value in a slice — i.e. the predicted class

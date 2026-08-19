@@ -15,13 +15,7 @@ func main() {
 	layers := []Layer{layer1, layer2, layer3}
 	neuralnetwork.init(layers, 0.01)
 
-	/*err := neuralnetwork.loadData("data/weights_biases.bin")
-	input := []float64{1, 2, 3, 4}
-	output := neuralnetwork.ForwardProgation(input)
-	fmt.Println(output)
-	if err != nil {
-		return
-	}*/
+	neuralnetwork.Randomise()
 
 	images, err := readIdxImagesFloat64("dataset/train-images.idx3-ubyte")
 	if err != nil {
@@ -34,11 +28,12 @@ func main() {
 		fmt.Println("error reading labels:", err)
 		return
 	}
-	err = neuralnetwork.loadData("data/weights_biases.bin")
-	if err != nil {
-		fmt.Println("error loading model:", err)
-		return
-	}
+	/*
+		err = neuralnetwork.loadData("data/weights_biases.bin")
+		if err != nil {
+			fmt.Println("error loading model:", err)
+			return
+		}*/
 
 	neuralnetwork.Train(images, labels, 5)
 	err = neuralnetwork.saveData("data/weights_biases.bin")
