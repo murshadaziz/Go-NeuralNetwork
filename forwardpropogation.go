@@ -1,12 +1,13 @@
 package main
 
 // Gives output of a single layer
-func (layer *Layer) Inference(input []float64) {
-	layer.lastInput = input
-	for i := range layer.output {
-		layer.output[i] = dot(layer.weights[i], input) + layer.bias[i]
+func (layer *Layer) Inference(input []float64) ([]float64, []float64) {
+	output := make([]float64, len(layer.weights))
+	for i := range output {
+		output[i] = dot(layer.weights[i], input) + layer.bias[i]
 	}
-	layer.activation(layer.output)
+	output = layer.activation(output)
+	return input, output
 
 }
 
