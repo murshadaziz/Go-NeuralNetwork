@@ -4,20 +4,19 @@ import (
 	"math"
 )
 
-type Activation func([]float64) []float64
+type Activation func([]float64)
 
-func relu(input []float64) []float64 {
+func relu(input []float64) {
 	for i := 0; i < len(input); i++ {
 		input[i] = math.Max(0, input[i])
 	}
-	return input
 }
 
-func linear(input []float64) []float64 {
-	return input
+func linear(input []float64) {
+
 }
 
-func softmax(input []float64) []float64 {
+func softmax(input []float64) {
 	max := input[0]
 	for i := range input {
 		if input[i] > max {
@@ -35,5 +34,4 @@ func softmax(input []float64) []float64 {
 		input[i] /= sum // normalize in place
 	}
 
-	return input
 }
