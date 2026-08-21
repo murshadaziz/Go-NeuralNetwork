@@ -1,6 +1,6 @@
-package neuralnetwork
+package main
 
-func Dot(a, b []float64) float64 {
+func dot(a, b []float64) float64 {
 	var sum float64
 
 	for i := range a {

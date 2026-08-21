@@ -1,4 +1,4 @@
-package neuralnetwork
+package main
 
 import (
 	"math"
@@ -27,7 +27,7 @@ type Layer struct {
 }
 
 // Initialises a layer with defined 2d matrix for weights, 1d array for biases and an activation function
-func (layer *Layer) Init(inputs, outputs int, act Activation) {
+func (layer *Layer) init(inputs, outputs int, act Activation) {
 	// Buffer is used so the 2d matrix is contigious
 	buffer := make([]float64, inputs*outputs)
 
