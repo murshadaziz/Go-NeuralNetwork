@@ -1,4 +1,4 @@
-package main
+package neuralnetwork
 
 import (
 	"bufio"
@@ -8,7 +8,7 @@ import (
 )
 
 // Reads 28x28 images from the .idx file and return a 2d slice (60000x784) where each row represents one image
-func readIdxImagesFloat64(path string) ([][]float64, error) {
+func ReadIdxImagesFloat64(path string) ([][]float64, error) {
 	// os.Open() takes file path as input and returns *os.file that is a standard pointer to file structure
 	f, err := os.Open(path)
 	if err != nil {
@@ -81,7 +81,7 @@ func readIdxImagesFloat64(path string) ([][]float64, error) {
 }
 
 // Reads labels from .idx1 file and returns a 1d slice containing 1 label for each image e.g 60000 labels
-func readIdxLabelsFloat64(path string) ([]int, error) {
+func ReadIdxLabelsFloat64(path string) ([]int, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err

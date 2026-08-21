@@ -1,4 +1,4 @@
-package main
+package neuralnetwork
 
 import (
 	"math"
@@ -46,15 +46,15 @@ func (neuralnetwork NeuralNetwork) Backpropagation(output []float64, label int) 
 		layer := &neuralnetwork.layers[l]
 		// calculates prev delta for all layers except the first
 		if l > 0 {
-			computePrevDelta(layer, &neuralnetwork.layers[l-1])
+			ComputePrevDelta(layer, &neuralnetwork.layers[l-1])
 		}
 
-		neuralnetwork.updateWeights(layer)
+		neuralnetwork.UpdateWeights(layer)
 	}
 }
 
 // Takes current layer and previous layer as input and calculates the delta for previous layer
-func computePrevDelta(layer, prevLayer *Layer) {
+func ComputePrevDelta(layer, prevLayer *Layer) {
 	// adds all the weights*delta of the all the neurons of current layer
 	// here i is the neuron number and j is the lastinput aka the neurons in the previous layer
 	for j := range prevLayer.delta {
@@ -73,7 +73,7 @@ func computePrevDelta(layer, prevLayer *Layer) {
 	}
 }
 
-func (neuralnetwork NeuralNetwork) updateWeights(layer *Layer) {
+func (neuralnetwork NeuralNetwork) UpdateWeights(layer *Layer) {
 	// i is number of neurons in current layer
 	// j is the number of neurons in previous layer aka number of inputs aka number of weights per neuron
 	for i := range layer.weights {

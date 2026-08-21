@@ -1,4 +1,4 @@
-package main
+package neuralnetwork
 
 import (
 	"bufio"
@@ -19,7 +19,7 @@ func (neuralnetwork NeuralNetwork) Train(images [][]float64, labels []int, epoch
 			label = labels[j]
 			neuralnetwork.ForwardProgation(image) // fills output in place
 			cost += neuralnetwork.Cost(lastLayer.output, label)
-			if argmax(lastLayer.output) == label {
+			if Argmax(lastLayer.output) == label {
 				correct++
 			}
 			neuralnetwork.Backpropagation(lastLayer.output, label)
@@ -42,7 +42,7 @@ func (neuralnetwork NeuralNetwork) Test(images [][]float64, labels []int) {
 		label = labels[j]
 		neuralnetwork.ForwardProgation(image) // fills output in place
 		cost += neuralnetwork.Cost(lastLayer.output, label)
-		if argmax(lastLayer.output) == label {
+		if Argmax(lastLayer.output) == label {
 			correct++
 		}
 	}
@@ -53,7 +53,7 @@ func (neuralnetwork NeuralNetwork) Test(images [][]float64, labels []int) {
 }
 
 // Saves the current weights and biases in a .bin file
-func (neuralnetwork NeuralNetwork) saveData(path string) error {
+func (neuralnetwork NeuralNetwork) SaveData(path string) error {
 	// Creates file if it doesnt exists, or truncates it zero bytes and opens it for writing
 	f, err := os.Create(path)
 	if err != nil {
@@ -90,7 +90,7 @@ func (neuralnetwork NeuralNetwork) saveData(path string) error {
 }
 
 // Loads the weights and biases from the .bin file
-func (neuralnetwork NeuralNetwork) loadData(path string) error {
+func (neuralnetwork NeuralNetwork) LoadData(path string) error {
 	// Opens file ans returns *os.file and error term
 	f, err := os.Open(path)
 	if err != nil {

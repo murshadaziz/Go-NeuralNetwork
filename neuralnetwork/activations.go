@@ -1,4 +1,4 @@
-package main
+package neuralnetwork
 
 import (
 	"math"
@@ -6,17 +6,17 @@ import (
 
 type Activation func([]float64)
 
-func relu(input []float64) {
+func Relu(input []float64) {
 	for i := 0; i < len(input); i++ {
 		input[i] = math.Max(0, input[i])
 	}
 }
 
-func linear(input []float64) {
+func Linear(input []float64) {
 
 }
 
-func softmax(input []float64) {
+func Softmax(input []float64) {
 	max := input[0]
 	for i := range input {
 		if input[i] > max {
